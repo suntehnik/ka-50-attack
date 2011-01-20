@@ -46,10 +46,12 @@ import org.anddev.andengine.util.Debug;
 import org.anddev.andengine.util.MathUtils;
 
 import org.dvaletin.games.ka50.Helicopter.Ka50;
+import org.dvaletin.games.ka50.weapon.Bullet;
 
 
 
 import android.graphics.Color;
+import android.view.KeyEvent;
 
 
 
@@ -63,6 +65,7 @@ public class ka50attack extends BaseGameActivity implements IAccelerometerListen
 	private static final int CAMERA_WIDTH = 480;
 	private static final int CAMERA_HEIGHT = 320;
 	private static final float MAX_SPEED = 300;
+	private static final float MAX_WEAPON_SPEED = 450;
 
 	// ===========================================================
 	// Fields
@@ -84,6 +87,7 @@ public class ka50attack extends BaseGameActivity implements IAccelerometerListen
 	
 	private Texture mFontTexture;
 	private Font mFont;
+	private Bullet mHeroBullet;
 
 	// ===========================================================
 	// Constructors
@@ -114,12 +118,13 @@ public class ka50attack extends BaseGameActivity implements IAccelerometerListen
 	public void onLoadResources() {
 		this.mTexture = new Texture(256, 256, TextureOptions.DEFAULT);
 		this.mHero = new Ka50(0, 0,  TextureRegionFactory.createTiledFromAsset(this.mTexture, this, "gfx/ka-50-green.png", 0, 0, 4, 4), 300, 24); // 72x128
-		
+		this.mHeroBullet = new Bullet(0, 0, TextureRegionFactory.createFromAsset(this.mTexture, this, "gfx/bullet.png", 0, 0), 300, 24);
+		this.mHeroBullet.setVisible(false);
+		//this.mHero.recharge(this.mHeroBullet);
 		this.mOnScreenControlTexture = new Texture(256, 128, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.mOnScreenControlBaseTextureRegion = TextureRegionFactory.createFromAsset(this.mOnScreenControlTexture, this, "gfx/onscreen_control_base.png", 0, 0);
 		this.mOnScreenControlKnobTextureRegion = TextureRegionFactory.createFromAsset(this.mOnScreenControlTexture, this, "gfx/onscreen_control_knob.png", 128, 0);
 		this.mEngine.getTextureManager().loadTextures(this.mTexture, this.mOnScreenControlTexture);
-		
 		this.mFontTexture = new Texture(512, 512, TextureOptions.BILINEAR_PREMULTIPLYALPHA);
 		this.mFont = FontFactory.createFromAsset(this.mFontTexture, this, "font/Droid.ttf", 32, true, Color.WHITE);
 		this.enableAccelerometerSensor(this);
@@ -173,7 +178,7 @@ public class ka50attack extends BaseGameActivity implements IAccelerometerListen
 		this.mBoundChaseCamera.setBoundsEnabled(true);
 		
 		this.mHero.setBounds(0, tmxLayer.getWidth(), 0, tmxLayer.getHeight());
-
+		this.mHeroBullet.setBounds(0, tmxLayer.getWidth(), 0, tmxLayer.getHeight());
 		/* Calculate the coordinates for the helicopter, so its centered on the camera. */
 		final int centerX = (CAMERA_WIDTH - mHero.getTextureRegion().getTileWidth()) / 2;
 		final int centerY = (CAMERA_HEIGHT - mHero.getTextureRegion().getTileHeight()) / 2;
@@ -183,6 +188,7 @@ public class ka50attack extends BaseGameActivity implements IAccelerometerListen
 
 		
 		scene.getTopLayer().addEntity(mHero);
+		scene.getTopLayer().addEntity(mHeroBullet);
 		
 		
 		
@@ -201,7 +207,7 @@ public class ka50attack extends BaseGameActivity implements IAccelerometerListen
 		float pValueY = pAccelerometerData.getX();
 		
 		//if(Math.sqrt(pValueX*pValueY) > 1.0){
-			this.mHero.setRotation(this.mHero.getRotation() + MathUtils.radToDeg((float) Math.atan2(pValueX, pValueY))/72);
+			this.mHero.setRotation(this.mHero.getRotation() + MathUtils.radToDeg((float) Math.atan2(pValueX, pValueY))/18);
 		
 			//this.mHero.setPosition(this.mHero.getX()+pValueX, this.mHero.getY());
 			//this.mHero.setVelocityX(this.mHero.getVelocityX() + pValueX*(float)Math.cos(MathUtils.degToRad(this.mHero.getRotation())));
@@ -217,7 +223,22 @@ public class ka50attack extends BaseGameActivity implements IAccelerometerListen
 	@Override
 	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
 		// 
-		return false;
+
+		return true;
+	}
+	
+	public boolean onKeyDown(final int pKeyCode, final KeyEvent pEvent) {
+		if(pKeyCode == KeyEvent.KEYCODE_DPAD_CENTER && pEvent.getAction() == KeyEvent.ACTION_DOWN) {
+			if(!this.mHeroBullet.isVisible()) {
+				this.mHeroBullet.setPosition(mHero.getX()+ mHero.getWidth()/2, mHero.getY()+mHero.getHeight()/2);
+				this.mHeroBullet.setRotation(this.mHero.getRotation());
+				this.mHeroBullet.setVelocity(MAX_WEAPON_SPEED*(float)Math.cos(MathUtils.degToRad(this.mHero.getRotation()-90)), MAX_WEAPON_SPEED*(float)Math.sin(MathUtils.degToRad(this.mHero.getRotation()-90)));
+				this.mHeroBullet.setVisible(true);
+			}
+			return true;
+		} else {
+			return super.onKeyDown(pKeyCode, pEvent);
+		}
 	}
     
 }

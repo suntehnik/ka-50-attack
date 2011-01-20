@@ -1,4 +1,4 @@
-package org.dvaletin.games.ka50.Helicopter;
+package org.dvaletin.games.ka50.Weapon;
 
 import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.opengl.texture.region.TextureRegion;
@@ -30,6 +30,8 @@ public abstract class Weapon extends Sprite {
 				this.mY < mBoundMinY ||
 				this.mY > mBoundMaxY) {
 			//this.destroy;
+			
+			this.setVisible(false);
 		}
 
 		super.onManagedUpdate(pSecondsElapsed);

@@ -4,8 +4,13 @@ package org.dvaletin.games.ka50.Helicopter;
 
 import org.anddev.andengine.entity.sprite.AnimatedSprite;
 
+import org.anddev.andengine.opengl.texture.Texture;
+import org.anddev.andengine.opengl.texture.TextureOptions;
+import org.anddev.andengine.opengl.texture.region.TextureRegion;
+import org.anddev.andengine.opengl.texture.region.TextureRegionFactory;
 import org.anddev.andengine.opengl.texture.region.TiledTextureRegion;
 import org.dvaletin.games.ka50.ka50attack;
+import org.dvaletin.games.ka50.weapon.Bullet;
 
 
 
@@ -23,6 +28,7 @@ public class Ka50 extends AnimatedSprite {
 	// Fields
 	// ===========================================================
 	private int mGuns;
+	private Bullet bullet;
 	private int mRockets;
 	private int mMaxGuns;
 	private int mMaxRockets;
@@ -34,6 +40,9 @@ public class Ka50 extends AnimatedSprite {
 	private float mBoundMaxX;
 	private float mBoundMinY;
 	private float mBoundMaxY;
+	private Bullet mBullet;
+
+
 	
 	
 	/*
@@ -54,6 +63,7 @@ public class Ka50 extends AnimatedSprite {
 		this.mGuns = this.mMaxGuns = guns;
 		this.mRockets = this.mMaxRockets  = rockets;
 		this.mArmor = Ka50.cMaxArmor;
+
 		setDirection();
 	}
 	
@@ -89,11 +99,14 @@ public class Ka50 extends AnimatedSprite {
 		this.mRockets = this.mMaxRockets;
 	}
 	
-	public void recharge_guns () {
+	public void recharge_guns (Bullet pBullet) {
 		this.mGuns = this.mMaxGuns;
+		mBullet = pBullet;
 	}
-	public void recharge () {
-		this.recharge_guns();
+	
+
+	public void recharge (Bullet pBullet) {
+		this.recharge_guns(pBullet);
 		this.recharge_rockets();
 	}
 	
